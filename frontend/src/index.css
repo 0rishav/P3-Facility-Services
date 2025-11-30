@@ -56,6 +56,29 @@
   opacity: 1;
 }
 
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  animation: gradientBG 5s ease infinite;
+}
+
+@keyframes borderGradient {
+  0% { border-color: red; }
+  25% { border-color: orange; }
+  50% { border-color: yellow; }
+  75% { border-color: green; }
+  100% { border-color: red; }
+}
+
+.animate-border-gradient {
+  animation: borderGradient 4s linear infinite;
+}
+
+
 /* Smooth transitions */
 * {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
