@@ -12,6 +12,15 @@ export default {
         tiro: ['"Tiro Devanagari Hindi"', 'serif'],
         noto: ['"Noto Sans Devanagari"', 'sans-serif'],
       },
+      keyframes: {
+        zoomPulse: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.2)' },
+        },
+      },
+      animation: {
+        zoomPulse: 'zoomPulse 1s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

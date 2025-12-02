@@ -11,6 +11,7 @@ import "./App.css";
 import WhyChoose from "./pages/WhyChoose";
 import Blog from "./pages/Blog";
 import { ToastProvider } from "./components/CustomToast";
+import ContactButtons from "./components/ContactButtons";
 
 function AppShell() {
   const location = useLocation();
@@ -31,6 +32,7 @@ function AppShell() {
           <Route path="/clients" element={<Clients />} />
           <Route path="/why-choose" element={<WhyChoose />} />
         </Routes>
+        <ContactButtons/>
       </Layout>
     </Theme>
   );
