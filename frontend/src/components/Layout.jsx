@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
-import authService from "../services/authService";
-import { logout as logoutAction } from "../redux/authslice";
 import ApplyModal from "./ApplyModal";
 import EnquiryModal from "./EnquiryModal";
+import axios from "axios";
+import { useToast } from "./CustomToast";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -15,14 +15,14 @@ const navLinks = [
   { label: "Blog", to: "/blog" },
 ];
 
-const footerNav = [
-  { label: "Programs", to: "/programs" },
-  { label: "Solutions", to: "/solutions" },
-  { label: "Careers", to: "/careers" },
-  { label: "Support", to: "/support" },
-  { label: "Privacy Policy", to: "/privacy" },
-  { label: "Terms of Service", to: "/terms" },
-];
+// const footerNav = [
+//   { label: "Programs", to: "/programs" },
+//   { label: "Solutions", to: "/solutions" },
+//   { label: "Careers", to: "/careers" },
+//   { label: "Support", to: "/support" },
+//   { label: "Privacy Policy", to: "/privacy" },
+//   { label: "Terms of Service", to: "/terms" },
+// ];
 
 const socials = [
   {
@@ -72,11 +72,11 @@ const socials = [
 function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { addToast } = useToast();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [enquiryIsOpen, setEnquiryIsOpen] = useState(false);
   const [applyIsOpen, setApplyIsOpen] = useState(false);
@@ -89,6 +89,7 @@ function Layout({ children }) {
     experience: "",
     shift: "",
     resume: null,
+    profileImage: null,
   });
   const [formData, setFormData] = useState({
     name: "",
@@ -103,12 +104,35 @@ function Layout({ children }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    // Yahan API ya backend call kar sakte ho
-    setEnquiryIsOpen(false);
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/enquiry/create`,
+        formData
+      );
+      if (response.data.success) {
+        addToast(response.data.message, "success");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          serviceType: "",
+          location: "",
+          startDate: "",
+        });
+        setEnquiryIsOpen(false);
+      }
+    } catch (error) {
+      console.error(error);
+      const errMsg = error.response?.data?.message || "Something went wrong!";
+      addToast(errMsg);
+    } finally {
+      setLoading(false);
+    }
   };
+
   const handleEnquiryForm = () => {
     setEnquiryIsOpen(true);
   };
@@ -118,19 +142,66 @@ function Layout({ children }) {
     setApplyForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
-  const handleApplySubmit = (e) => {
+  const handleApplySubmit = async (e) => {
     e.preventDefault();
-    // You can send applyForm to backend here
-    console.log("Form submitted:", applyForm);
-    setApplyIsOpen(false);
+    setLoading(true);
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("fullName", applyForm.fullName);
+      formDataToSend.append("email", applyForm.email);
+      formDataToSend.append("phone", applyForm.phone);
+      formDataToSend.append("address", applyForm.address);
+      formDataToSend.append("position", applyForm.position);
+      formDataToSend.append("experience", applyForm.experience);
+      formDataToSend.append("shift", applyForm.shift);
+
+      if (applyForm.resume) {
+        formDataToSend.append("resume", applyForm.resume);
+      }
+
+      if (applyForm.profileImage) {
+        formDataToSend.append("profileImage", applyForm.profileImage);
+      }
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/application/create`,
+        formDataToSend,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (response.data.success) {
+        addToast(response.data.message, "success");
+
+        setApplyForm({
+          fullName: "",
+          email: "",
+          phone: "",
+          address: "",
+          position: "",
+          experience: "",
+          shift: "",
+          resume: null,
+          profileImage: null,
+        });
+
+        setApplyIsOpen(false);
+      }
+    } catch (error) {
+      console.error(error);
+      const errMsg = error.response?.data?.message || "Something went wrong!";
+      addToast(errMsg, "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleApplyForm = () => {
     setApplyIsOpen(true);
   };
 
-  // Handle scroll effect for navbar
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -151,10 +222,6 @@ function Layout({ children }) {
   }, [location.pathname]);
 
   const closeSidebar = () => setSidebarOpen(false);
-  const goToProfile = () => {
-    closeSidebar();
-    navigate("/profile");
-  };
 
   const filteredLinks = navLinks.filter((link) => {
     if (link.authOnly === true) return isAuthenticated;
@@ -348,6 +415,7 @@ function Layout({ children }) {
 
             {enquiryIsOpen && (
               <EnquiryModal
+                loading={loading}
                 formData={formData}
                 handleChange={handleChange}
                 setEnquiryIsOpen={setEnquiryIsOpen}
@@ -357,6 +425,7 @@ function Layout({ children }) {
 
             {applyIsOpen && (
               <ApplyModal
+                loading={loading}
                 applyForm={applyForm}
                 setApplyForm={setApplyForm}
                 setApplyIsOpen={setApplyIsOpen}

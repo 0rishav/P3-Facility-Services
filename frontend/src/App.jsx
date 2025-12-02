@@ -4,13 +4,13 @@ import { Theme } from "@radix-ui/themes";
 import About from "./pages/About";
 import Services from "./pages/Services";
 import Clients from "./pages/Clients";
-
 import Landing from "./pages/Landing";
-
 import Layout from "./components/Layout";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import "./App.css";
 import WhyChoose from "./pages/WhyChoose";
+import Blog from "./pages/Blog";
+import { ToastProvider } from "./components/CustomToast";
 
 function AppShell() {
   const location = useLocation();
@@ -25,7 +25,7 @@ function AppShell() {
       <Layout>
         <Routes>
           <Route path="/" element={<Landing />} />
-
+          <Route path="/blog" element={<Blog />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/clients" element={<Clients />} />
@@ -39,7 +39,9 @@ function AppShell() {
 function App() {
   return (
     <ThemeProvider>
-      <AppShell />
+      <ToastProvider>
+        <AppShell />
+      </ToastProvider>
     </ThemeProvider>
   );
 }

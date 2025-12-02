@@ -7,6 +7,8 @@ import http from "http";
 // import cookieParser from "cookie-parser";
 import { ErrorMiddleware } from "./middlewares/error.js";
 import pageContentRouter from "./routes/pageContent.js";
+import enquiryRouter from "./routes/enquiry.js";
+import applyRouter from "./routes/apply.js";
 
 dotenv.config();
 
@@ -43,6 +45,8 @@ app.use(morgan("dev"));
 // app.use(cookieParser());
 
 app.use("/api/v1/pageContent", pageContentRouter);
+app.use("/api/v1/enquiry", enquiryRouter);
+app.use("/api/v1/application", applyRouter);
 
 app.use(ErrorMiddleware);
 

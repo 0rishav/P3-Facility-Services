@@ -1,5 +1,11 @@
-
-const ApplyModal = ({applyForm,setApplyForm,setApplyIsOpen,handleApplySubmit,handleApplyChange}) => {
+const ApplyModal = ({
+  loading,
+  applyForm,
+  setApplyForm,
+  setApplyIsOpen,
+  handleApplySubmit,
+  handleApplyChange,
+}) => {
   return (
     <div>
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm overflow-auto p-4 h-screen">
@@ -105,19 +111,19 @@ const ApplyModal = ({applyForm,setApplyForm,setApplyIsOpen,handleApplySubmit,han
               <option value="24hr">24-hour</option>
             </select>
 
-            {/* Resume Upload */}
+            {/* Profile Image Upload */}
             <div className="sm:col-span-2">
-              <label className="flex flex-col items-center justify-center w-full h-40 px-4 py-6 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-all duration-300">
-                {applyForm.resume &&
-                applyForm.resume.type.startsWith("image/") ? (
+              <label className="flex flex-col items-center justify-center w-full h-20 px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-all duration-300 overflow-hidden">
+                {applyForm.profileImage &&
+                applyForm.profileImage.type.startsWith("image/") ? (
                   <img
-                    src={URL.createObjectURL(applyForm.resume)}
+                    src={URL.createObjectURL(applyForm.profileImage)}
                     alt="Preview"
-                    className="w-20 h-20 object-contain mb-2 rounded-md"
+                    className="w-16 h-16 object-contain mb-1 rounded-md"
                   />
                 ) : (
                   <svg
-                    className="w-10 h-10 mb-3 text-gray-400 dark:text-gray-500"
+                    className="w-8 h-8 mb-1 text-gray-400 dark:text-gray-500"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -132,7 +138,56 @@ const ApplyModal = ({applyForm,setApplyForm,setApplyIsOpen,handleApplySubmit,han
                   </svg>
                 )}
 
-                <span className="text-gray-600 dark:text-gray-300 font-medium text-center">
+                <span className="text-gray-600 dark:text-gray-300 font-medium text-center text-sm">
+                  {applyForm.profileImage
+                    ? applyForm.profileImage.name
+                    : "Click to upload your profile image (JPG, PNG)"}
+                </span>
+
+                <input
+                  type="file"
+                  name="profileImage"
+                  accept=".jpg,.jpeg,.png"
+                  required
+                  onChange={(e) =>
+                    setApplyForm((prev) => ({
+                      ...prev,
+                      profileImage: e.target.files[0],
+                    }))
+                  }
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Resume Upload */}
+            <div className="sm:col-span-2">
+              <label className="flex flex-col items-center justify-center w-full h-20 px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-all duration-300 overflow-hidden">
+                {applyForm.resume &&
+                applyForm.resume.type.startsWith("image/") ? (
+                  <img
+                    src={URL.createObjectURL(applyForm.resume)}
+                    alt="Preview"
+                    className="w-16 h-16 object-contain mb-1 rounded-md"
+                  />
+                ) : (
+                  <svg
+                    className="w-8 h-8 mb-1 text-gray-400 dark:text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v8m0-8l-3 3m3-3l3 3"
+                    />
+                  </svg>
+                )}
+
+                <span className="text-gray-600 dark:text-gray-300 font-medium text-center text-sm">
                   {applyForm.resume
                     ? applyForm.resume.name
                     : "Click to upload your document (Aadhar, PDF, DOC, Image)"}
@@ -158,9 +213,34 @@ const ApplyModal = ({applyForm,setApplyForm,setApplyIsOpen,handleApplySubmit,han
             <div className="sm:col-span-2">
               <button
                 type="submit"
-                className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md transition-all duration-300"
+                disabled={loading} // disable while loading
+                className={`w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md transition-all duration-300 flex items-center justify-center gap-3
+      ${loading ? "cursor-not-allowed opacity-70" : ""}
+    `}
               >
-                Submit Application
+                {loading && (
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4l-3 3 3 3h-4z"
+                    ></path>
+                  </svg>
+                )}
+                {loading ? "Submitting..." : "Submit Application"}
               </button>
             </div>
           </form>

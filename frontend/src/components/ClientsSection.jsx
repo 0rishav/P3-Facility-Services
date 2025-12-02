@@ -1,53 +1,83 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const clients = [
-  { name: 'Client 1', logo: 'C1' },
-  { name: 'Client 2', logo: 'C2' },
-  { name: 'Client 3', logo: 'C3' },
-  { name: 'Client 4', logo: 'C4' },
-  { name: 'Client 5', logo: 'C5' },
-  { name: 'Client 6', logo: 'C6' },
-];
+export default function ApplicationsCards() {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-export default function ClientsSection() {
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/application/all`
+        );
+        setApplications(res.data.applications);
+        setLoading(false);
+      } catch (err) {
+        const message = err?.response?.data?.message;
+        console.log(message);
+        setError(message);
+        setLoading(false);
+      }
+    };
+    fetchApplications();
+  }, []);
+
+  if (loading) return <p className="text-center py-8">Loading...</p>;
+  if (error) return <p className="text-center py-8 text-red-500">{error}</p>;
+
   return (
-    <section className="py-24 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-full mb-6">
-            <span className="text-sm font-semibold text-green-600 dark:text-green-300">Partners</span>
-          </div>
-          <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-6">
-            Our Trusted Clients
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Proud to serve industry leaders across various sectors
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {clients.map((client, index) => (
+    <section className="py-12 px-4 bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl font-bold text-center mb-10 text-gray-900 dark:text-white">
+          Our Clients
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {applications.map((app) => (
             <div
-              key={index}
-              className="group flex items-center justify-center p-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-green-300 dark:hover:border-green-600 transition-all duration-300 hover:-translate-y-2"
+              key={app._id}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-2xl"
             >
-              <div className="text-3xl font-bold bg-gradient-to-r from-gray-400 to-gray-600 dark:from-gray-500 dark:to-gray-400 bg-clip-text text-transparent group-hover:from-green-500 group-hover:to-emerald-600 dark:group-hover:from-green-400 dark:group-hover:to-emerald-500 transition-all duration-300">
-                {client.logo}
-              </div>
+              <img
+                src={app.profileImage}
+                alt={app.fullName}
+                className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-indigo-500"
+              />
+              <h3 className="text-xl font-bold mb-1 text-gray-900 dark:text-white">
+                {app.fullName}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                {app.email}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                {app.phone}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                {app.address}
+              </p>
+              <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 mb-1">
+                {app.position}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                {app.experience} yrs
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                Shift: {app.shift}
+              </p>
+              {/* <span
+                className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  app.status === "pending"
+                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                    : app.status === "approved"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200"
+                }`}
+              >
+                {app.status.toUpperCase()}
+              </span> */}
             </div>
           ))}
-        </div>
-        
-        <div className="text-center mt-12">
-          <Link
-            to="/contact"
-            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
-          >
-            Become Our Client
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Link>
         </div>
       </div>
     </section>

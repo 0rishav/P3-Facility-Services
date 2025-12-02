@@ -1,4 +1,5 @@
 const EnquiryModal = ({
+  loading,
   formData,
   handleChange,
   setEnquiryIsOpen,
@@ -70,12 +71,40 @@ const EnquiryModal = ({
               className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 transition-all duration-300"
             />
 
-            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md transition-all duration-300"
+              disabled={loading} 
+              className={`w-full py-3 rounded-lg text-white font-semibold shadow-md transition-all duration-300 flex items-center justify-center
+    ${
+      loading
+        ? "bg-indigo-400 cursor-not-allowed"
+        : "bg-indigo-600 hover:bg-indigo-700"
+    }
+  `}
             >
-              Submit Enquiry
+              {loading ? (
+                <svg
+                  className="w-5 h-5 mr-2 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+              ) : null}
+              {loading ? "Submitting..." : "Submit Enquiry"}
             </button>
           </form>
         </div>
